@@ -1,0 +1,12 @@
+#membaca data dari URL
+#Run tidyverse
+library(tidyverse) 
+library(readr)
+pef_data <- read.csv("https://raw.githubusercontent.com/dwi-agustian/biostat/main/pef.csv")
+# Melihat jumlah data yang duplikat
+sum(duplicated(pef_data$pidlink))
+# Menampilkan baris-baris yang duplikat
+pef_data[duplicated(pef_data$pidlink), ]
+# Menghapus duplikat, hanya menyisakan baris pertama dari setiap pidlink
+pef_unique <- pef_data[!duplicated(pef_data$pidlink), ]
+pef_data <- pef_data[!duplicated(pef_data$pidlink), ]
