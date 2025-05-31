@@ -1,0 +1,60 @@
+#Mempersiapkan data untuk analisis variabel pef, age, sex, height:
+# Aktifkan
+library(dplyr)
+#Set Seed dan Mengambil Sampel
+set.seed(0002)  
+pef_ds <- sample_frac(pef, 0.85, replace = FALSE)
+#Data age
+sample_per_age <- pef_ds %>%
+  group_by(age) %>%
+  sample_frac(0.85) %>%
+  ungroup()
+#Data pef
+sample_per_pef <- pef_ds %>%
+  group_by(pef) %>%
+  sample_frac(0.85) %>%
+  ungroup()
+#Data sex
+sample_per_sex <- pef_ds %>%
+  group_by(sex) %>%
+  sample_frac(0.85) %>%
+  ungroup()
+#Catatan tidak ada data tentang sex/pria/wanita
+#Data height
+sample_per_height <- pef_ds %>%
+  group_by(height) %>%
+  sample_frac(0.85) %>%
+  ungroup()
+#membersihkan (mengexclude) missing data untuk variable pef, age, sex, dan height 
+#(tidak ada data sex)
+library(dplyr)
+pef_data_bersih <- pef_data %>%
+  filter(!is.na(pef)
+         pef_data_bersih<- pef_data %>%  
+           filter(!is.na(age)    
+                  pef_data_bersih<- pef_data %>%  
+                    filter(!is.na(height)   
+                           
+#Menyiapkan data yang komplit (memiliki nila pef, age, sex dan height)
+# Mengambil hanya baris yang nilai pef, age, sex, dan height-nya tidak NA
+
+library(dplyr)
+pef_komplit <- pef_data %>%
+  filter(!is.na(pef)
+         pef_data_bersih<- pef_data %>%  
+           filter(!is.na(age)    
+                  pef_data_bersih<- pef_data %>%  
+                    filter(!is.na(height)   
+library(dplyr)
+pef_komplit <- pef[complete.cases(pef[, c("pef", "age", "height")]), ]
+write.csv(pef_komplit, "pef_komplit.csv", row.names = FALSE)                           
+
+#Mengidentifikasi nilai-nilai ekstrem dari data pef, age, dan height
+#Melakukan pembersihan data dengan mengeluarkan data-data yang tidak masuk akal 
+library(dplyr)
+
+pef_databersih2 <- pef %>%
+  filter(!is.na(pef) & pef >= 300 & pef <= 700,
+    !is.na(age) & age >= 18 & age <= 70,
+    !is.na(height) & height >= 140 & height <= 200)
+write.csv(pef_databersih2, "pef_databersih2.csv", row.names = FALSE)   
