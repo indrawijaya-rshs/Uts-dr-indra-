@@ -1,0 +1,72 @@
+#Mempersiapkan data morbidity asma untuk merging dengan data pef.
+#Meng-akses data W5
+library(readr)
+pef_dataW5 <- read.csv("https://raw.githubusercontent.com/dwi-agustian/biostat/main/w5.csv")
+#Menyiapkan data baru yang hanya berisikan variable pidlink dan Asthma
+# Mengambil hanya kolom pidlink dan Asthma
+data_asma <- pef_dataW5 %>%
+  select(pidlink, Asthma)
+#MengeCek frekuensi dari kategori Astma
+library(dplyr)
+pef_dataW5 %>%
+  count(Asthma)
+#Memilih oberservasi yang berisikan kategori ‘No-Asthma” atau “Yes-Asthma”
+library(dplyr)
+pef_asma <- pef_dataW5 %>%
+  filter(Asthma %in% c("No-Asthma", "Yes-Asthma"))
+#Cek variable pidlink, lihat kompatibilitasnya dengan variable pidlink pada data pef.
+all(data_asma$pidlink %in% pef$pidlink)
+# MeLihat pidlink di data_asma yang tidak ada di pef
+setdiff(data_asma$pidlink, pef$pidlink)
+
+#MeLakukan konversi format variable apabila diperlukan untuk persiapan merging.
+#Cek Tipe Data pidlink di Kedua Dataset (PEF dan W5)
+str(pef$pidlink)
+str(data_asma$pidlink)
+#MeSamakan Tipe Data (Ubah pidlink jadi karakter di kedua data set)
+pef$pidlink <- as.character(pef$pidlink)
+data_asma$pidlink <- as.character(data_asma$pidlink)
+#Lakukan merging data dengan perintah join.
+library(dplyr)
+pef_joined <- pef %>%
+  left_join(data_asma, by = "pidlink")
+#jadikan pef sebagai patokan.(sudah sama 58.297)
+#Membuat data profile diagram
+summary(pef)
+library(dplyr)
+
+# 1. Import data
+pef <- read.csv("path/pef.csv")
+dataw5 <- read.csv("path/w5.csv")
+
+n1 <- nrow(pef)  # Awal
+
+# 2. Hapus duplikasi pidlink
+pef <- pef %>% distinct(pidlink, .keep_all = TRUE)
+n2 <- nrow(pef)
+
+# 3. Hapus missing data penting
+pef <- pef %>% filter(!is.na(pef), !is.na(age), !is.na(height))
+n3 <- nrow(pef)
+
+# 4. Hapus outlier tidak masuk akal
+pef <- pef %>%
+  filter(
+    pef >= 50 & pef <= 800,
+    age >= 5 & age <= 100,
+    height >= 100 & height <= 220
+  )
+n4 <- nrow(pef)
+
+# 5. Join dengan dataW5
+pef$pidlink <- as.character(pef$pidlink)
+pef_dataW5$pidlink <- as.character(w5$pidlink)
+
+data_final <- left_join(pef, w5, by = "pidlink")
+n5 <- nrow(pef_joined)
+
+library(skimr)
+skim(pef_joined)  
+write.csv(pef_dataW5, "pef_dataW5.csv", row.names = FALSE)   
+write.csv(pef_asma, "pef_asma.csv", row.names = FALSE)   
+write.csv(pef_joined, "pef_join.csv", row.names = FALSE)   
