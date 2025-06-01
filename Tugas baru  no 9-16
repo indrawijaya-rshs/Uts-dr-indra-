@@ -1,0 +1,80 @@
+#Mempersiapkan data morbidity asma & sex untuk merging dengan data pef.
+#Akses data w5
+library(dplyr)
+dataW5 <- read.csv("https://raw.githubusercontent.com/dwi-agustian/biostat/main/w5.csv")
+write.csv(dataW5, "dataW5.csv", row.names = FALSE)   
+#Siapkan data baru yang hanya berisikan variable pidlink, sex dan Asthma
+data_baru <- dataW5 %>%
+  select(pidlink, sex, Asthma)
+write.csv(data_baru, "data_baru.csv", row.names = FALSE)
+#Cek frekuensi dari kategori Astma dan sex
+# Cek frekuensi masing-masing variabel
+library(dplyr)
+
+# Frekuensi Asthma
+dataW5 %>% count(Asthma)
+
+# Frekuensi sex
+dataW5 %>% count(sex)
+
+# Kombinasi sex dan Asthma
+dataW5 %>% count(sex, Asthma)
+
+#Memilih observasi yang berisikan kategori ‘No-Asthma” atau “Yes-Asthma”
+# Ubah nilai 0/1 (jika ada) menjadi label "No-Asthma" dan "Yes-Asthma"
+dataW5$Asthma <- factor(dataW5$Asthma, levels = c(0, 1), labels = c("No-Asthma", "Yes-Asthma"))
+# Filter data untuk hanya ambil "No-Asthma" dan "Yes-Asthma"
+data_asthma_filtered <- dataW5 %>%
+  filter(Asthma %in% c("No-Asthma", "Yes-Asthma"))
+#Memilih observasi yang berisikan data sex (non-missing)
+library(dplyr)
+
+# Pilih observasi dengan nilai sex yang tidak missing
+data_sex_nonmissing <- dataW5 %>%
+  filter(!is.na(sex))
+#MenCek variable pidlink
+all(data_sex_nonmissing$pidlink %in% pef$pidlink)
+#Melihat kompaTbilitas nya dengan variable pidlink pada data pef.
+length(unique(dataW5$pidlink))  # Jumlah unik di dataW5
+length(unique(pef$pidlink))     # Jumlah unik di pef
+# Cek pidlink dari dataW5 yang ada juga di pef
+sum(dataW5$pidlink %in% pef$pidlink)
+
+# Cek sebaliknya
+sum(pef$pidlink %in% dataW5$pidlink)
+
+#MeLakukan konversi format variable apabila diperlukan untuk persiapan merging.
+#Cek format variabel pidlink di kedua dataset
+str(dataW5$pidlink)
+str(pef$pidlink)
+# Konversi ke character
+dataW5$pidlink <- as.character(dataW5$pidlink)
+pef$pidlink <- as.character(pef$pidlink)
+#MeLakukan merging data dengan perintah join, menjadikan pef sebagai patokan 
+(jumlah observasi data set final harus sama dengan jumlah observasi data pef)
+library(dplyr)
+
+# Pastikan pidlink dalam format yang sama
+pef$pidlink <- as.character(pef$pidlink)
+dataW5$pidlink <- as.character(dataW5$pidlink)
+sum(dataW5$pidlink %in% pef$pidlink)  
+
+# Lakukan penggabungan: pef sebagai patokan (kiri), dataW5 digabungkan
+data_merged <- left_join(pef, dataW5, by = "pidlink")
+
+#Membuat data profile diagram.
+
+DiagrammeR::grViz("
+digraph flowchart {
+  graph [layout = dot, rankdir = TB]
+
+  node [shape = box, style = filled, fillcolor = lightblue]
+
+  A [label = 'Total dataW5\\n(n = 58304)']
+  B [label = 'Non-missing sex\\n(n = 58304)']
+  C [label = 'Non-missing Asthma\\n(n = 0)']
+  D [label = 'Matched with pef\\n(n = 26300)']
+
+  A -> B -> C -> D
+}
+")
